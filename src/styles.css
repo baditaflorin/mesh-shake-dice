@@ -49,3 +49,142 @@ body,
   opacity: 0.6;
   font-variant-numeric: tabular-nums;
 }
+
+.dice-screen {
+  padding: 5rem 1rem 2rem;
+  max-width: 36rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.dice-header {
+  text-align: center;
+}
+.dice-header h1 {
+  margin: 0;
+  color: var(--mesh-accent);
+  font-size: 1.5rem;
+}
+.dice-status {
+  font-size: 0.85rem;
+  opacity: 0.6;
+  margin: 0.25rem 0 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.dice-name {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.6rem;
+  border: 1px solid var(--mesh-border);
+  background: var(--mesh-surface);
+  color: var(--mesh-fg);
+  font-size: 1rem;
+}
+
+.dice-shapes {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+.dice-shape {
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid var(--mesh-border);
+  background: var(--mesh-surface);
+  color: var(--mesh-fg);
+  cursor: pointer;
+  font-weight: 600;
+  transition: opacity 160ms;
+}
+.dice-shape.is-active {
+  background: var(--mesh-accent);
+  color: #1a1209;
+  border-color: var(--mesh-accent);
+}
+
+.dice-shake-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: var(--mesh-surface);
+  border: 1px dashed var(--mesh-border);
+}
+.dice-mag {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8rem;
+  opacity: 0.55;
+}
+.dice-roll {
+  width: 100%;
+  padding: 1.4rem;
+  border-radius: 1rem;
+  border: none;
+  background: var(--mesh-accent);
+  color: #1a1209;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  cursor: pointer;
+  transition: opacity 140ms;
+}
+.dice-roll:active {
+  opacity: 0.7;
+}
+
+.dice-result {
+  text-align: center;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  background: var(--mesh-surface);
+  border: 1px solid var(--mesh-border);
+  min-height: 5.5rem;
+}
+.dice-values {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+.dice-total-label {
+  margin-top: 0.4rem;
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+.dice-total {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: var(--mesh-accent);
+  margin-left: 0.4rem;
+}
+.dice-meta {
+  font-size: 0.75rem;
+  opacity: 0.5;
+  margin-top: 0.25rem;
+}
+.dice-empty {
+  opacity: 0.5;
+  padding: 1rem 0;
+}
+
+.dice-history {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.dice-history li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0.8rem;
+  background: var(--mesh-surface);
+  border: 1px solid var(--mesh-border);
+  border-radius: 0.5rem;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}

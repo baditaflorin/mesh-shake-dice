@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { MeshShell, useYRoom } from "@baditaflorin/mesh-common";
+import { ConfettiLayer, MeshShell, useYRoom } from "@baditaflorin/mesh-common";
 import { config } from "./config";
 import { Feature } from "./Feature";
 
@@ -17,6 +17,7 @@ export function App() {
   return (
     <MeshShell config={config} roomId={roomId} onRoomChange={setRoomId}>
       <Feature room={room} config={config} />
+      <ConfettiLayer />
     </MeshShell>
   );
 }
