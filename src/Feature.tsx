@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArmGate,
   useConfetti,
@@ -38,6 +38,19 @@ function rollFor(shape: Shape, seed: number, round: number): number[] {
   return Array.from({ length: n }, () => 1 + Math.floor(next() * sides));
 }
 
+/**
+ * Bridges ArmGate's render-prop `armed` flag into Body's `armed` state without
+ * calling setState during render. Mounted only once ArmGate reveals its
+ * children, so its mount effect flips Body's state → useShake re-runs with
+ * armed:true and the DeviceMotion listener attaches.
+ */
+function ArmSync({ armed, onArmed }: { armed: boolean; onArmed: (v: boolean) => void }) {
+  useEffect(() => {
+    onArmed(armed);
+  }, [armed, onArmed]);
+  return null;
+}
+
 export function Feature({ room, config }: Props) {
   if (!room) {
     return (
@@ -60,8 +73,16 @@ function Body({ room, config }: { room: YRoom; config: MeshConfig }) {
   const shape = (shapeMap.get("v") as Shape) ?? "d6";
   const lastPushedRound = useRef(0);
 
+  // Fairness gate: the seed XORs every contributor's salt, so it is only
+  // genuinely fair once every peer currently in the room has contributed one.
+  // With fewer salts than peers, one peer's salt would dominate the seed —
+  // i.e. that peer effectively chooses the outcome. peerCount counts OTHER
+  // peers, so the room size is peerCount + 1; require a salt from each.
+  const seatedPeers = room.peerCount + 1;
+  const canRoll = fair.seed !== null && fair.contributors >= seatedPeers;
+
   const triggerRoll = () => {
-    if (fair.seed === null) return;
+    if (!canRoll || fair.seed === null) return;
     const cur = (stateMap.get("round") as number) ?? 0;
     const next = cur + 1;
     stateMap.set("round", next);
@@ -84,8 +105,12 @@ function Body({ room, config }: { room: YRoom; config: MeshConfig }) {
 
   const triggerRef = useRef(triggerRoll);
   triggerRef.current = triggerRoll;
-  const shakeArmed = useRef(false);
-  const shakeState = useShake({ armed: shakeArmed.current, threshold: 14 });
+  // `armed` must be React state, not a ref: useShake() is called at the top of
+  // this render, so it has to re-run with armed:true on a real re-render once
+  // the user taps the ArmGate. A ref mutated inside ArmGate's render-prop never
+  // schedules that re-render, so the DeviceMotion listener would never attach.
+  const [shakeArmed, setShakeArmed] = useState(false);
+  const shakeState = useShake({ armed: shakeArmed, threshold: 14 });
   const lastShakes = useRef(0);
   useEffect(() => {
     if (shakeState.shakes > lastShakes.current) {
@@ -103,6 +128,7 @@ function Body({ room, config }: { room: YRoom; config: MeshConfig }) {
         <h1>shake dice</h1>
         <p className="dice-status">
           round {(stateMap.get("round") as number) ?? 0} · {fair.contributors} salt(s)
+          {!canRoll ? " · waiting for peers" : ""}
         </p>
       </header>
 
@@ -129,14 +155,21 @@ function Body({ room, config }: { room: YRoom; config: MeshConfig }) {
       </div>
 
       <ArmGate label="tap to enable shake">
-        {() => {
-          shakeArmed.current = true;
+        {(armed) => {
           return (
             <div className="dice-shake-area">
+              <ArmSync armed={armed} onArmed={setShakeArmed} />
               <div className="dice-mag" aria-hidden="true">
                 magnitude {shakeState.magnitude.toFixed(1)}
               </div>
-              <button type="button" className="dice-roll" aria-label="ROLL" onClick={triggerRoll}>
+              <button
+                type="button"
+                className="dice-roll"
+                aria-label="ROLL"
+                onClick={triggerRoll}
+                disabled={!canRoll}
+                title={canRoll ? undefined : "waiting for every peer's salt"}
+              >
                 ROLL
               </button>
             </div>

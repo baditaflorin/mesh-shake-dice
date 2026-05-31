@@ -1,7 +1,7 @@
 # mesh-shake-dice
 
 [![pages](https://img.shields.io/badge/live-baditaflorin.github.io%2Fmesh-shake-dice-f4a04a)](https://baditaflorin.github.io/mesh-shake-dice/)
-[![version](https://img.shields.io/badge/version-0.1.0-blue)](https://github.com/baditaflorin/mesh-shake-dice/blob/main/package.json)
+[![version](https://img.shields.io/badge/version-0.1.1-blue)](https://github.com/baditaflorin/mesh-shake-dice/blob/main/package.json)
 [![license](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
 
 > Shake to roll fair dice — every peer agrees on the result.
