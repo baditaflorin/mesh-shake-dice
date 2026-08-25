@@ -5,6 +5,7 @@ import {
   useEventLog,
   useFairRng,
   useNamedPeer,
+  useRoster,
   useShake,
   type MeshConfig,
   type YRoom,
@@ -65,7 +66,11 @@ export function Feature({ room, config }: Props) {
 
 function Body({ room, config }: { room: YRoom; config: MeshConfig }) {
   const { name, setName } = useNamedPeer(config, room);
-  const fair = useFairRng(room, "dice-salts", { minContributors: 1 });
+  const roster = useRoster(room);
+  const fair = useFairRng(room, "dice-salts", {
+    peerIds: roster.present,
+    minContributors: 1,
+  });
   const log = useEventLog<Roll>(room, "rolls");
   const { burst } = useConfetti();
   const stateMap = room.doc.getMap<number>("state");
@@ -73,13 +78,11 @@ function Body({ room, config }: { room: YRoom; config: MeshConfig }) {
   const shape = (shapeMap.get("v") as Shape) ?? "d6";
   const lastPushedRound = useRef(0);
 
-  // Fairness gate: the seed XORs every contributor's salt, so it is only
-  // genuinely fair once every peer currently in the room has contributed one.
-  // With fewer salts than peers, one peer's salt would dominate the seed —
-  // i.e. that peer effectively chooses the outcome. peerCount counts OTHER
-  // peers, so the room size is peerCount + 1; require a salt from each.
-  const seatedPeers = room.peerCount + 1;
-  const canRoll = fair.seed !== null && fair.contributors >= seatedPeers;
+  // Fairness gate: the seed XORs every present device's salt, so it is only
+  // genuinely fair once the live roster has committed and revealed. Using the
+  // same roster for the hook's quorum and this control keeps a refreshed tab
+  // from being counted twice while its old peer session is still fresh.
+  const canRoll = fair.ready;
 
   const triggerRoll = () => {
     if (!canRoll || fair.seed === null) return;
